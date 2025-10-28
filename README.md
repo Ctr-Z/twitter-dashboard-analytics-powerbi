@@ -95,6 +95,9 @@ RETURN IF(CurrentISTHour >= 18 && CurrentISTHour <= 23, 1, 0)
 - Currently, the scatter chart appears empty because no tweets meet the word-count filter (all are below 50 words).
 ---
 
+<img width="1130" height="639" alt="image" src="https://github.com/user-attachments/assets/024ba6cc-28c2-480f-9adf-91a2b8c4738a" />
+
+
 ## Next Steps
 Subsequent tasks (2–6) will add new analyses to this same dashboard.  
 When all are complete, the final `.pbix` file and comprehensive README will be uploaded.
