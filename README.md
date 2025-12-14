@@ -204,3 +204,136 @@ Upcoming tasks will build additional visuals and KPIs based on other engagement 
 All tasks will be integrated into one final Power BI dashboard.
 <img width="1911" height="904" alt="image" src="https://github.com/user-attachments/assets/a7c6e78c-5dc5-46f1-864b-f81321791e2a" />
 
+
+
+
+
+# Power BI Twitter Analytics – Task 3
+
+This document describes **Task 3** of a multi-part Power BI project focused on analyzing Twitter engagement data using advanced DAX filters and time-based conditions.
+
+---
+
+## Task 3 Objective
+
+Build a chart to identify the **Top 10 tweets** based on the **combined total of retweets and likes**, while applying multiple data and time constraints.
+
+---
+
+## Business Rules & Filters
+
+Only tweets that meet **all** of the following conditions are included:
+
+| Condition | Description |
+|----------|-------------|
+| Top 10 tweets | Ranked by **Retweets + Likes** |
+| Weekdays only | Tweets posted on weekends are excluded |
+| Time window | Tweets posted **between 3 PM and 5 PM IST** |
+| Impressions | Tweet impressions must be an **even number** |
+| Tweet date | Tweet must be posted on an **odd-numbered date** |
+| Word count | Tweet text must contain **less than 30 words** |
+| User profile | Display the user profile that posted each tweet |
+| Dashboard visibility | Chart is visible only between **3 PM–5 PM IST** |
+
+---
+
+## DAX Logic Used
+
+### **Tweet Hour (IST)**
+```DAX
+Tweet_Hour_IST3 =
+HOUR('SocialMedia (1)'[ConvertedDateTime] + TIME(5,30,0))
+```
+
+### **Tweet Day**
+```DAX
+Tweet_Day3 =
+DAY('SocialMedia (1)'[ConvertedDateTime])
+```
+
+### **Weekend Flag**
+```DAX
+IsWeekend3 =
+VAR DayOfWeek =
+    WEEKDAY('SocialMedia (1)'[ConvertedDateTime], 2)
+RETURN
+IF(DayOfWeek >= 6, 1, 0)
+```
+
+### **Word Count**
+```DAX
+WordCount3 =
+LEN(TRIM('SocialMedia (1)'[TweetText])) -
+LEN(SUBSTITUTE(TRIM('SocialMedia (1)'[TweetText]), " ", "")) + 1
+```
+
+### **Total Engagement (Likes + Retweets)**
+```DAX
+Retweets_Likes_Total3 =
+'SocialMedia (1)'[Retweets] + 'SocialMedia (1)'[Likes]
+```
+
+### **Row-Level Filter**
+```DAX
+Show_Tweet3 =
+VAR HourIST = 'SocialMedia (1)'[Tweet_Hour_IST3]
+VAR InTimeRange = HourIST >= 15 && HourIST < 17
+VAR IsOddDay = MOD('SocialMedia (1)'[Tweet_Day3], 2) = 1
+VAR IsWeekday = 'SocialMedia (1)'[IsWeekend3] = 0
+VAR EvenImpressions = MOD('SocialMedia (1)'[Impressions], 2) = 0
+VAR ShortTweet = 'SocialMedia (1)'[WordCount3] < 30
+RETURN
+IF(
+    InTimeRange &&
+    IsOddDay &&
+    IsWeekday &&
+    EvenImpressions &&
+    ShortTweet,
+    1,
+    0
+)
+```
+
+### **Dashboard Visibility**
+```DAX
+ShowGraph3 =
+VAR CurrentISTHour = HOUR(NOW() + TIME(5,30,0))
+RETURN IF(CurrentISTHour >= 15 && CurrentISTHour < 17, 1, 0)
+```
+
+---
+
+## Chart Setup
+
+| Visual Property | Field |
+|----------------|------|
+| Chart Type | Bar / Column Chart |
+| X-Axis | Tweet Content |
+| Y-Axis | Total Engagements (Likes + Retweets) |
+| Tooltip | User Profile, Likes, Retweets |
+| Visual Filters | `Show_Tweet3 = 1`, `ShowGraph3 = 1` |
+| Ranking | Top 10 by `Retweets_Likes_Total3` |
+
+---
+
+## Chart Observation
+
+The chart currently displays **only one bar** because only **one tweet** in the dataset satisfies all applied conditions. In particular, most tweets exceed the word-count threshold, and only one tweet has fewer than 30 words while also meeting the remaining filters (weekday, odd date, even impressions, and time window). This confirms that the DAX filtering logic is functioning correctly and the limited output is due to data availability.
+
+
+---
+
+## 📅 Next Steps
+
+Upcoming tasks will introduce additional engagement-based analyses and visuals. All tasks will be consolidated into a final Power BI dashboard upon completion.
+
+---
+
+<img width="589" height="370" alt="image" src="https://github.com/user-attachments/assets/578f38ef-2587-45ff-870d-563785637912" />
+
+
+
+
+
+
+
