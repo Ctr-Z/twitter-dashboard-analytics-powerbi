@@ -475,11 +475,6 @@ AVERAGE('SocialMedia (1)'[EngagementRate])
 
 The line chart currently appears **empty** because **all tweets in the dataset contain the letter “C”**, and the applied text filter explicitly excludes any tweet that includes this character. As a result, no tweets qualify for the analysis after all conditions are applied.
 
----
-
-## Daily Progress Report – Task 4
-
-Today, I worked on creating a line chart to analyze the monthly trend of average engagement rate, separating tweets with media from those without. I implemented DAX logic to apply multiple filters, including restricted time windows, odd tweet dates, even engagement values, and a minimum character count. During validation, I observed that the chart is empty because every tweet in the dataset contains the letter “C,” which causes them to be excluded by the text filter.
 
 ---
 
