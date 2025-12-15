@@ -333,7 +333,161 @@ Upcoming tasks will introduce additional engagement-based analyses and visuals. 
 
 
 
+# Power BI Twitter Analytics – Task 4
 
+This document describes **Task 4** of a multi-part Power BI project focused on analyzing engagement trends using time-based, textual, and numeric filters.
+
+---
+
+## Task 4 Objective
+
+Create a **line chart** showing the **monthly trend of average engagement rate**, with separate lines for:
+- Tweets **with media content**
+- Tweets **without media content**
+
+---
+
+## Business Rules & Filters
+
+Only tweets that meet **all** of the following conditions are included:
+
+| Condition | Description |
+|----------|-------------|
+| Time windows | Chart works only between **7 AM–11 AM IST** and **3 PM–5 PM IST** |
+| Engagement | Tweet engagement value must be an **even number** |
+| Tweet date | Tweet must be posted on an **odd-numbered date** |
+| Character count | Tweet must have **more than 20 characters** |
+| Text filter | Tweets containing the letter **“C” or “c” are excluded** |
+| Media split | Separate lines for tweets **with media** and **without media** |
+| Metric | Uses **average engagement rate**, grouped by month |
+
+---
+
+## DAX Logic Used
+
+### **Tweet Hour (IST)**
+```DAX
+Tweet_Hour_IST4 =
+HOUR('SocialMedia (1)'[ConvertedDateTime] + TIME(5,30,0))
+```
+
+### **Tweet Day**
+```DAX
+Tweet_Day4 =
+DAY('SocialMedia (1)'[ConvertedDateTime])
+```
+
+### **Tweet Month**
+```DAX
+Tweet_Month4 =
+FORMAT('SocialMedia (1)'[ConvertedDateTime], "MMM")
+```
+
+```DAX
+Tweet_Month_Num4 =
+MONTH('SocialMedia (1)'[ConvertedDateTime])
+```
+
+### **Character Count**
+```DAX
+CharCount4 =
+LEN('SocialMedia (1)'[TweetText])
+```
+
+### **Exclude Tweets Containing Letter “C”**
+```DAX
+Contains_C4 =
+IF(
+    CONTAINSSTRING(UPPER('SocialMedia (1)'[TweetText]), "C"),
+    1,
+    0
+)
+```
+
+### **Media Classification**
+```DAX
+Media_Flag4 =
+IF(
+    'SocialMedia (1)'[MediaViews] > 0 ||
+    'SocialMedia (1)'[MediaEngagements] > 0,
+    "With Media",
+    "Without Media"
+)
+```
+
+### **Row-Level Filter**
+```DAX
+Show_Tweet4 =
+VAR HourIST = 'SocialMedia (1)'[Tweet_Hour_IST4]
+VAR InTimeRange =
+    (HourIST >= 15 && HourIST < 17) ||
+    (HourIST >= 7 && HourIST < 11)
+VAR IsOddDay = MOD('SocialMedia (1)'[Tweet_Day4], 2) = 1
+VAR EvenEngagement = MOD('SocialMedia (1)'[Engagements], 2) = 0
+VAR HasEnoughChars = 'SocialMedia (1)'[CharCount4] > 20
+VAR NoCInText = 'SocialMedia (1)'[Contains_C4] = 0
+RETURN
+IF(
+    InTimeRange &&
+    IsOddDay &&
+    EvenEngagement &&
+    HasEnoughChars &&
+    NoCInText,
+    1,
+    0
+)
+```
+
+### **Dashboard Visibility**
+```DAX
+ShowGraph4 =
+VAR HourIST = HOUR(NOW() + TIME(5,30,0))
+RETURN
+IF(
+    (HourIST >= 15 && HourIST < 17) ||
+    (HourIST >= 7 && HourIST < 11),
+    1,
+    0
+)
+```
+
+### **Average Engagement Rate**
+```DAX
+Avg_Engagement_Rate4 =
+AVERAGE('SocialMedia (1)'[EngagementRate])
+```
+
+---
+
+## Line Chart Setup
+
+| Visual Property | Field |
+|----------------|------|
+| Chart Type | Line Chart |
+| X-Axis | `Tweet_Month4` (sorted by `Tweet_Month_Num4`) |
+| Y-Axis | `Avg_Engagement_Rate4` |
+| Legend | `Media_Flag4` |
+| Visual Filters | `Show_Tweet4 = 1`, `ShowGraph4 = 1` |
+
+---
+
+## Chart Observation
+
+The line chart currently appears **empty** because **all tweets in the dataset contain the letter “C”**, and the applied text filter explicitly excludes any tweet that includes this character. As a result, no tweets qualify for the analysis after all conditions are applied.
+
+---
+
+## Daily Progress Report – Task 4
+
+Today, I worked on creating a line chart to analyze the monthly trend of average engagement rate, separating tweets with media from those without. I implemented DAX logic to apply multiple filters, including restricted time windows, odd tweet dates, even engagement values, and a minimum character count. During validation, I observed that the chart is empty because every tweet in the dataset contains the letter “C,” which causes them to be excluded by the text filter.
+
+---
+
+## Next Steps
+
+Subsequent tasks will continue building additional analytical visuals. All tasks will be consolidated into a final Power BI dashboard at the end of the project.
+
+---
 
 
 
