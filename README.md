@@ -486,3 +486,137 @@ Subsequent tasks will continue building additional analytical visuals. All tasks
 
 
 
+# Power BI Twitter Analytics – Task 5
+
+This document describes **Task 5** of a multi-part Power BI project that focuses on comparing user interactions for tweets with high media engagement using advanced DAX filtering logic.
+
+---
+
+## Task 5 Objective
+
+Develop a visualization that compares the **number of replies, retweets, and likes** for tweets that have received **media engagements greater than the median value**.
+
+---
+
+## Business Rules & Filters
+
+Only tweets that meet **all** of the following conditions are included:
+
+| Condition | Description |
+|----------|-------------|
+| Media engagement | Media engagements must be **greater than the median** |
+| Date range | Tweets posted between **June and August 2020** |
+| Time windows | Chart works only between **7 AM–11 AM IST** and **3 PM–5 PM IST** |
+| Tweet date | Tweet must be posted on an **odd-numbered date** |
+| Media views | Media views must be an **even number** |
+| Character count | Tweet must contain **more than 20 characters** |
+| Text filter | Tweets containing the letter **“S” or “s” are excluded** |
+| Comparison metrics | Replies, Retweets, and Likes |
+
+---
+
+## DAX Logic Used
+
+### **Tweet Hour (IST)**
+```DAX
+Tweet_Hour_IST5 =
+HOUR('SocialMedia (1)'[ConvertedDateTime] + TIME(5,30,0))
+```
+
+### **Tweet Day**
+```DAX
+Tweet_Day5 =
+DAY('SocialMedia (1)'[ConvertedDateTime])
+```
+
+### **Tweet Year**
+```DAX
+Tweet_Year5 =
+YEAR('SocialMedia (1)'[ConvertedDateTime])
+```
+
+### **Tweet Month**
+```DAX
+Tweet_Month_Num5 =
+MONTH('SocialMedia (1)'[ConvertedDateTime])
+```
+
+### **Character Count**
+```DAX
+CharCount5 =
+LEN('SocialMedia (1)'[TweetText])
+```
+
+### **Exclude Tweets Containing Letter “S”**
+```DAX
+Contains_S5 =
+IF(
+    CONTAINSSTRING(UPPER('SocialMedia (1)'[TweetText]), "S"),
+    1,
+    0
+)
+```
+
+### **Median Media Engagements**
+```DAX
+Median_Media_Engagements5 =
+MEDIAN('SocialMedia (1)'[MediaEngagements])
+```
+
+### **Row-Level Filter**
+```DAX
+Show_Tweet5 =
+VAR HourIST = 'SocialMedia (1)'[Tweet_Hour_IST5]
+VAR InTimeRange =
+    (HourIST >= 15 && HourIST < 17) ||
+    (HourIST >= 7 && HourIST < 11)
+VAR IsOddDay = MOD('SocialMedia (1)'[Tweet_Day5], 2) = 1
+VAR EvenMediaViews = MOD('SocialMedia (1)'[MediaViews], 2) = 0
+VAR EnoughChars = 'SocialMedia (1)'[CharCount5] > 20
+VAR NoSInText = 'SocialMedia (1)'[Contains_S5] = 0
+VAR InDateRange =
+    'SocialMedia (1)'[Tweet_Year5] = 2020 &&
+    'SocialMedia (1)'[Tweet_Month_Num5] >= 6 &&
+    'SocialMedia (1)'[Tweet_Month_Num5] <= 8
+VAR AboveMedianMedia =
+    'SocialMedia (1)'[MediaEngagements] > [Median_Media_Engagements5]
+RETURN
+IF(
+    InTimeRange &&
+    IsOddDay &&
+    EvenMediaViews &&
+    EnoughChars &&
+    NoSInText &&
+    InDateRange &&
+    AboveMedianMedia,
+    1,
+    0
+)
+```
+
+---
+
+## Visualization Setup
+
+| Visual Property | Field |
+|----------------|------|
+| Chart Type | Clustered Column Chart |
+| X-Axis | Interaction Type (Replies, Retweets, Likes) |
+| Y-Axis | Total Interactions |
+| Visual Filters | `Show_Tweet5 = 1` |
+| Tooltip | Tweet text, media engagements |
+
+---
+
+## Chart Observation
+
+The chart currently appears **empty** because all tweets in the dataset contain the letter **“S”**, which causes them to be excluded by the text-based filter. Even after removing this constraint, the visualization remains empty due to the cumulative effect of multiple strict filters, including the limited date range, time windows, odd tweet dates, even media views, and the requirement for media engagements to be above the median.
+
+---
+
+## 📅 Next Steps
+
+The final task will complete the dashboard by introducing additional analytical perspectives. All tasks will be consolidated into a single Power BI report at the end of the project.
+
+---
+
