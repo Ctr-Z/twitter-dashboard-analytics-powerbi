@@ -768,3 +768,11 @@ With Task 6 completed, all required analyses for the dashboard are finalized. Th
 ---
 
 
+
+
+
+This dashboard consolidates all task-based analyses into one unified Power BI report, showcasing tweet engagement trends, interaction comparisons, and performance metrics under strict filtering and time-based conditions.it also has the charts and graphs from training project.
+
+<img width="1283" height="722" alt="image" src="https://github.com/user-attachments/assets/e3985047-8bb0-4142-bd11-da846385bd6f" />
+
+
