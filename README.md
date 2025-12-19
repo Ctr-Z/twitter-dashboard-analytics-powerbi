@@ -758,6 +758,8 @@ The chart shows a single bar for “Without App Opens”, indicating that only t
 
 ---
 
+<img width="552" height="343" alt="image" src="https://github.com/user-attachments/assets/f8adc27b-37d3-4e89-878d-536ba8c1e0ea" />
+
 
 ## Next Steps
 
