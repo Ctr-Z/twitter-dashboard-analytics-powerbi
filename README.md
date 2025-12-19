@@ -614,9 +614,155 @@ The chart currently appears **empty** because all tweets in the dataset contain 
 
 ---
 
-## 📅 Next Steps
+## Next Steps
 
 The final task will complete the dashboard by introducing additional analytical perspectives. All tasks will be consolidated into a single Power BI report at the end of the project.
 
 ---
+
+
+
+
+# Power BI Twitter Analytics – Task 6
+
+This document describes **Task 6** of a multi-part Power BI project focused on comparing engagement rates for tweets based on app open activity using advanced filtering logic.
+
+---
+
+## Task 6 Objective
+
+Analyze and compare the **average engagement rate** for:
+- Tweets **with app opens**
+- Tweets **without app opens**
+
+> Note: Since the dataset does not contain a direct *App Opens* column, **User Profile Clicks** are used as a proxy to classify tweets.
+
+---
+
+## Business Rules & Filters
+
+Only tweets that meet **all** of the following conditions are included:
+
+| Condition | Description |
+|----------|-------------|
+| App opens proxy | `UserProfileClicks > 0` → With App Opens |
+| Posting window | Tweets posted between **9 AM and 5 PM** |
+| Weekdays only | Weekend tweets are excluded |
+| Dashboard visibility | Chart visible between **7 AM–11 AM IST** and **12 PM–6 PM IST** |
+| Impressions | Tweet impressions must be an **even number** |
+| Tweet date | Tweet must be posted on an **odd-numbered date** |
+| Character count | Tweet text must contain **more than 30 characters** |
+| Text filter | Tweets containing the letter **“D” or “d” are excluded** |
+
+---
+
+## DAX Logic Used
+
+### **Tweet Hour (IST)**
+```DAX
+Tweet_Hour_IST6 =
+HOUR('SocialMedia (1)'[ConvertedDateTime] + TIME(5,30,0))
+```
+
+### **Tweet Day**
+```DAX
+Tweet_Day6 =
+DAY('SocialMedia (1)'[ConvertedDateTime])
+```
+
+### **Weekend Flag**
+```DAX
+IsWeekend6 =
+VAR DayOfWeek =
+    WEEKDAY('SocialMedia (1)'[ConvertedDateTime], 2)
+RETURN
+IF(DayOfWeek >= 6, 1, 0)
+```
+
+### **Character Count**
+```DAX
+CharCount6 =
+LEN('SocialMedia (1)'[TweetText])
+```
+
+### **Exclude Tweets Containing Letter “D”**
+```DAX
+Contains_D6 =
+IF(
+    CONTAINSSTRING(UPPER('SocialMedia (1)'[TweetText]), "D"),
+    1,
+    0
+)
+```
+
+### **App Opens Classification (Derived)**
+```DAX
+App_Open_Flag6 =
+IF(
+    'SocialMedia (1)'[UserProfileClicks] > 0,
+    "With App Opens",
+    "Without App Opens"
+)
+```
+
+### **Row-Level Filter**
+```DAX
+Show_Tweet6 =
+VAR HourIST = 'SocialMedia (1)'[Tweet_Hour_IST6]
+VAR InPostingWindow = HourIST >= 9 && HourIST <= 17
+VAR InDashboardWindow =
+    (HourIST >= 12 && HourIST < 18) ||
+    (HourIST >= 7 && HourIST < 11)
+VAR IsOddDay = MOD('SocialMedia (1)'[Tweet_Day6], 2) = 1
+VAR IsWeekday = 'SocialMedia (1)'[IsWeekend6] = 0
+VAR EvenImpressions = MOD('SocialMedia (1)'[Impressions], 2) = 0
+VAR EnoughChars = 'SocialMedia (1)'[CharCount6] > 30
+VAR NoDInText = 'SocialMedia (1)'[Contains_D6] = 0
+RETURN
+IF(
+    InPostingWindow &&
+    InDashboardWindow &&
+    IsOddDay &&
+    IsWeekday &&
+    EvenImpressions &&
+    EnoughChars &&
+    NoDInText,
+    1,
+    0
+)
+```
+
+---
+
+## Visualization Setup
+
+| Visual Property | Field |
+|----------------|------|
+| Chart Type | Clustered Column / Bar Chart |
+| X-Axis | App Opens Status |
+| Y-Axis | Average Engagement Rate |
+| Measure | `Avg_Engagement_Rate6` |
+| Visual Filters | `Show_Tweet6 = 1` |
+
+### **Average Engagement Rate Measure**
+```DAX
+Avg_Engagement_Rate6 =
+AVERAGE('SocialMedia (1)'[engagement rate])
+```
+
+---
+
+## Chart Observation
+
+The chart shows a single bar for “Without App Opens”, indicating that only tweets without app opens meet all the applied filtering conditions. Tweets classified as “With App Opens” do not appear in the visualization because none of them satisfy the combined constraints, including weekday posting between 9 AM and 5 PM, odd tweet dates, even impressions, character count above 30, and exclusion of tweets containing the letter “D.” As a result, the average engagement rate is calculated only for tweets without app opens, confirming that the filtering logic is functioning correctly.
+
+---
+
+
+## Next Steps
+
+With Task 6 completed, all required analyses for the dashboard are finalized. The final step will be to consolidate all tasks into a single Power BI report.
+
+---
+
 
